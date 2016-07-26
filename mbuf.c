@@ -7,7 +7,7 @@
 
 static LIST_HEAD(head);
 
-static struct mbuf *mbuf_new(int len, const unsigned char *data)
+static struct mbuf *mbuf_new(const unsigned char *data, int len)
 {
 	struct mbuf *mp;
 	
@@ -21,7 +21,7 @@ static struct mbuf *mbuf_new(int len, const unsigned char *data)
 	return mp;
 }
 
-static int mbuf_append(struct mbuf *mp, int len, const unsigned char *data)
+static int mbuf_append(struct mbuf *mp, const unsigned char *data, int len)
 {
 	int left = MLEN - mp->len;
 
@@ -39,7 +39,7 @@ static int mbuf_append(struct mbuf *mp, int len, const unsigned char *data)
 	}
 }
 
-void mbuf_add(int len, const unsigned char *data)
+void mbuf_add(const unsigned char *data, int len)
 {
 	int i = 0;
 	struct mbuf *mp;
@@ -49,37 +49,37 @@ void mbuf_add(int len, const unsigned char *data)
 
 	if (!list_empty(&head)) {
 		mp = list_entry(hp, struct mbuf, list);
-		left = mbuf_append(mp, len, data);
+		left = mbuf_append(mp, data, len);
 	}
 
 	for (i = 0; left > MLEN; i++) {
-		mp = mbuf_new(MLEN, data + i * MLEN);
+		mp = mbuf_new(data + i * MLEN, MLEN);
 		list_add(&mp->list, hp);
 		hp = &mp->list;
 		left -= MLEN;
 	}
 
 	if (left > 0) {
-		mp = mbuf_new(left, data + i * MLEN);
+		mp = mbuf_new(data + i * MLEN, left);
 		list_add(&mp->list, hp);
 	}
 }
 
-void mbuf_add_ahead(int len, const unsigned char *data)
+void mbuf_add_ahead(const unsigned char *data, int len)
 {
 	int i = 0;
 	struct mbuf *mp;
 	struct list_head *hp = &head;
 
 	for (i = 0; len > MLEN; i++) {
-		mp = mbuf_new(MLEN, data + i * MLEN);
+		mp = mbuf_new(data + i * MLEN, MLEN);
 		list_add(&mp->list, hp);
 		hp = &mp->list;
 		len -= MLEN;
 	}
 
 	if (len > 0) {
-		mp = mbuf_new(len, data + i * MLEN);
+		mp = mbuf_new(data + i * MLEN, len);
 		list_add(&mp->list, hp);
 	}
 }

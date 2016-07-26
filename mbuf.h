@@ -7,13 +7,13 @@
 
 struct mbuf {
 	struct list_head list;
-	int len;	/* amount of data in this mbuf */
-	unsigned char databuf[MLEN];
+	int				 len;	/* amount of data in this mbuf */
+	unsigned char	 databuf[MLEN];
 };
 
-void mbuf_add(int len, const unsigned char *data);
-void mbuf_add_ahead(int len, const unsigned char *data);
-int mbuf_write(int fd);
+void mbuf_add(const unsigned char *data, int len);
+void mbuf_add_ahead(const unsigned char *data, int len);
+int  mbuf_write(int fd);
 void mbuf_free(void);
 
 #endif /* _MBUF_H_ */

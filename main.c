@@ -8,14 +8,13 @@ int main()
 
 	int i;
 	for (i = 0; i < sizeof(buf); i++)
-		buf[i] = 'b';
+		buf[i] = '*';
 
-	mbuf_add(sizeof(buf), buf);
-	mbuf_add(8, (unsigned char *)" world!");
-	mbuf_add(9, (unsigned char *)" world!\n");
+	mbuf_add(buf, sizeof(buf));
+	mbuf_add((unsigned char *)"\nWorld!\n", 9);
 
-	mbuf_add_ahead(8, (unsigned char *)" world!");
-	mbuf_add_ahead(8, (unsigned char *)" world!");
+	mbuf_add_ahead((unsigned char *)"World!\n", 8);
+	mbuf_add_ahead((unsigned char *)"Hello ", 6);
 
 	mbuf_write(fileno(stdout));
 

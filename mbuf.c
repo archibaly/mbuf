@@ -92,7 +92,7 @@ int mbuf_write(int fd)
 	struct mbuf *pos;
 	list_for_each_entry(pos, &head, list) {
 		if ((ret = writen(fd, pos->databuf, pos->len)) < 0)
-			return -1;
+			break;
 		else
 			n += ret;
 	}

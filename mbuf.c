@@ -5,8 +5,6 @@
 #include "mbuf.h"
 #include "writen.h"
 
-static LIST_HEAD(head);
-
 static struct mbuf *mbuf_new(const unsigned char *data, int len)
 {
 	struct mbuf *mp;
@@ -39,15 +37,20 @@ static int mbuf_append(struct mbuf *mp, const unsigned char *data, int len)
 	}
 }
 
-void mbuf_add(const unsigned char *data, int len)
+void mbuf_init(struct mbuf_head *head)
+{
+	list_init(&head->head);
+}
+
+void mbuf_add(struct mbuf_head *head, const unsigned char *data, int len)
 {
 	int i = 0;
 	struct mbuf *mp;
-	struct list_head *hp = list_get_tail(&head);
+	struct list_head *hp = list_get_tail(&head->head);
 
 	int left = len;
 
-	if (!list_empty(&head)) {
+	if (!list_empty(&head->head)) {
 		mp = list_entry(hp, struct mbuf, list);
 		left = mbuf_append(mp, data, len);
 	}
@@ -65,11 +68,11 @@ void mbuf_add(const unsigned char *data, int len)
 	}
 }
 
-void mbuf_add_ahead(const unsigned char *data, int len)
+void mbuf_add_ahead(struct mbuf_head *head, const unsigned char *data, int len)
 {
 	int i = 0;
 	struct mbuf *mp;
-	struct list_head *hp = &head;
+	struct list_head *hp = &head->head;
 
 	for (i = 0; len > MLEN; i++) {
 		mp = mbuf_new(data + i * MLEN, MLEN);
@@ -84,13 +87,13 @@ void mbuf_add_ahead(const unsigned char *data, int len)
 	}
 }
 
-int mbuf_write(int fd)
+int mbuf_write(const struct mbuf_head *head, int fd)
 {
 	int ret;
 	int n = 0;
 
 	struct mbuf *pos;
-	list_for_each_entry(pos, &head, list) {
+	list_for_each_entry(pos, &head->head, list) {
 		if ((ret = writen(fd, pos->databuf, pos->len)) < 0)
 			break;
 		else
@@ -100,13 +103,13 @@ int mbuf_write(int fd)
 	return n;
 }
 
-void mbuf_free(void)
+void mbuf_free(struct mbuf_head *head)
 {
 	struct mbuf *pos;
 
-	while (!list_empty(&head)) {
-		pos = list_entry(head.next, struct mbuf, list);
-		list_del(head.next);
+	while (!list_empty(&head->head)) {
+		pos = list_entry(head->head.next, struct mbuf, list);
+		list_del(head->head.next);
 		free(pos);
 	}
 }

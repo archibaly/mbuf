@@ -10,15 +10,21 @@ int main()
 	for (i = 0; i < sizeof(buf); i++)
 		buf[i] = '*';
 
-	mbuf_add(buf, sizeof(buf));
-	mbuf_add((unsigned char *)"\nWorld!\n", 9);
+	struct mbuf_head packet_info;
 
-	mbuf_add_ahead((unsigned char *)"World!\n", 8);
-	mbuf_add_ahead((unsigned char *)"Hello ", 6);
+	mbuf_init(&packet_info);
 
-	mbuf_write(fileno(stdout));
+	mbuf_add(&packet_info, buf, sizeof(buf));
+	mbuf_add(&packet_info, (unsigned char *)"\nWorld!\n", 9);
 
-	mbuf_free();
+	mbuf_add_ahead(&packet_info, (unsigned char *)"World!\n", 8);
+	mbuf_add_ahead(&packet_info, (unsigned char *)"Hello ", 6);
+
+	mbuf_write(&packet_info, fileno(stdout));
+
+	mbuf_free(&packet_info);
+
+	printf("writed %d\n", mbuf_write(&packet_info, fileno(stdout)));
 
 	return 0;
 }

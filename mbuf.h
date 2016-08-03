@@ -11,9 +11,14 @@ struct mbuf {
 	unsigned char	 databuf[MLEN];
 };
 
-void mbuf_add(const unsigned char *data, int len);
-void mbuf_add_ahead(const unsigned char *data, int len);
-int  mbuf_write(int fd);
-void mbuf_free(void);
+struct mbuf_head {
+	struct list_head head;
+};
+
+void mbuf_init(struct mbuf_head *head);
+void mbuf_add(struct mbuf_head *head, const unsigned char *data, int len);
+void mbuf_add_ahead(struct mbuf_head *head, const unsigned char *data, int len);
+int mbuf_write(const struct mbuf_head *head, int fd);
+void mbuf_free(struct mbuf_head *head);
 
 #endif /* _MBUF_H_ */

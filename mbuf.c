@@ -42,7 +42,7 @@ void mbuf_init(struct mbuf_head *head)
 	list_init(&head->head);
 }
 
-void mbuf_add(struct mbuf_head *head, const unsigned char *data, int len)
+void mbuf_add_after(struct mbuf_head *head, const unsigned char *data, int len)
 {
 	int i = 0;
 	struct mbuf *mp;

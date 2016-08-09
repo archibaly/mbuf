@@ -16,7 +16,7 @@ struct mbuf_head {
 };
 
 void mbuf_init(struct mbuf_head *head);
-void mbuf_add(struct mbuf_head *head, const unsigned char *data, int len);
+void mbuf_add_after(struct mbuf_head *head, const unsigned char *data, int len);
 void mbuf_add_ahead(struct mbuf_head *head, const unsigned char *data, int len);
 int mbuf_write(const struct mbuf_head *head, int fd);
 void mbuf_free(struct mbuf_head *head);

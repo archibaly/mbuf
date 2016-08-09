@@ -14,8 +14,8 @@ int main()
 
 	mbuf_init(&packet_info);
 
-	mbuf_add(&packet_info, buf, sizeof(buf));
-	mbuf_add(&packet_info, (unsigned char *)"\nWorld!\n", 9);
+	mbuf_add_after(&packet_info, buf, sizeof(buf));
+	mbuf_add_after(&packet_info, (unsigned char *)"\nWorld!\n", 9);
 
 	mbuf_add_ahead(&packet_info, (unsigned char *)"World!\n", 8);
 	mbuf_add_ahead(&packet_info, (unsigned char *)"Hello ", 6);

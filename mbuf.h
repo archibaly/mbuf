@@ -7,8 +7,8 @@
 
 struct mbuf {
 	struct list_head list;
-	int				 len;	/* amount of data in this mbuf */
-	unsigned char	 databuf[MLEN];
+	int len;	/* number of bytes in this mbuf */
+	unsigned char databuf[MLEN];
 };
 
 struct mbuf_head {

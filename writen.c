@@ -1,5 +1,3 @@
-#include <errno.h>
-
 #include "writen.h"
 
 /*
@@ -13,18 +11,14 @@ ssize_t writen(int fd, const void *vptr, size_t n)
 
 	while (nleft > 0) {
 		if ((nwritten = write(fd, ptr, nleft)) < 0) {
-			/* has written all data */
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				break;
-			else
-				return -1;
+			return -1;
 		} else if (nwritten == 0) {
-			return -1;	/* error */
+			break;	/* has written all data */
 		}
 
 		nleft -= nwritten;
 		ptr   += nwritten;
 	}
 
-	return n;
+	return n - nleft;
 }

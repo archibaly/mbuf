@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <err.h>
 
 #include "mbuf.h"
 #include "writen.h"
@@ -8,11 +9,11 @@
 static struct mbuf *mbuf_new(const unsigned char *data, int len)
 {
 	struct mbuf *mp;
-	
-	if (!(mp = malloc(sizeof(struct mbuf))))
-		exit(-1);
 
-	list_init(&mp->list);
+	if (!(mp = malloc(sizeof(struct mbuf))))
+		err(1, "malloc()");
+
+	INIT_LIST_HEAD(&mp->list);
 	mp->len = len;
 	memcpy(mp->databuf, data, len);
 
@@ -39,18 +40,18 @@ static int mbuf_append(struct mbuf *mp, const unsigned char *data, int len)
 
 void mbuf_init(struct mbuf_head *head)
 {
-	list_init(&head->head);
+	INIT_LIST_HEAD(head);
 }
 
 void mbuf_add_after(struct mbuf_head *head, const unsigned char *data, int len)
 {
 	int i = 0;
 	struct mbuf *mp;
-	struct list_head *hp = list_get_tail(&head->head);
+	struct list_head *hp = list_get_tail(head);
 
 	int left = len;
 
-	if (!list_empty(&head->head)) {
+	if (!list_empty(head)) {
 		mp = list_entry(hp, struct mbuf, list);
 		left = mbuf_append(mp, data, len);
 	}
@@ -72,7 +73,7 @@ void mbuf_add_ahead(struct mbuf_head *head, const unsigned char *data, int len)
 {
 	int i = 0;
 	struct mbuf *mp;
-	struct list_head *hp = &head->head;
+	struct list_head *hp = head;
 
 	for (i = 0; len > MLEN; i++) {
 		mp = mbuf_new(data + i * MLEN, MLEN);
@@ -87,13 +88,27 @@ void mbuf_add_ahead(struct mbuf_head *head, const unsigned char *data, int len)
 	}
 }
 
-int mbuf_write(const struct mbuf_head *head, int fd)
+int mbuf_get_len(const struct mbuf_head *head)
+{
+	int len = 0;
+	struct mbuf *pos;
+
+	if (list_empty(head))
+		return 0;
+
+	list_for_each_entry(pos, head, list)
+		len += pos->len;
+
+	return len;
+}
+
+int mbuf_write(int fd, const struct mbuf_head *head)
 {
 	int ret;
 	int n = 0;
 
 	struct mbuf *pos;
-	list_for_each_entry(pos, &head->head, list) {
+	list_for_each_entry(pos, head, list) {
 		if ((ret = writen(fd, pos->databuf, pos->len)) < 0)
 			break;
 		else
@@ -107,9 +122,9 @@ void mbuf_free(struct mbuf_head *head)
 {
 	struct mbuf *pos;
 
-	while (!list_empty(&head->head)) {
-		pos = list_entry(head->head.next, struct mbuf, list);
-		list_del(head->head.next);
+	while (!list_empty(head)) {
+		pos = list_entry(head->next, struct mbuf, list);
+		list_del(head->next);
 		free(pos);
 	}
 }

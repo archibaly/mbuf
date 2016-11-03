@@ -20,11 +20,11 @@ int main()
 	mbuf_add_ahead(&packet_info, (unsigned char *)"World!\n", 8);
 	mbuf_add_ahead(&packet_info, (unsigned char *)"Hello ", 6);
 
-	mbuf_write(&packet_info, fileno(stdout));
+	mbuf_write(fileno(stdout), &packet_info);
 
 	mbuf_free(&packet_info);
 
-	printf("writed %d\n", mbuf_write(&packet_info, fileno(stdout)));
+	printf("writed %d\n", mbuf_write(fileno(stdout), &packet_info));
 
 	return 0;
 }

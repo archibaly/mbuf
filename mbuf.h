@@ -3,7 +3,8 @@
 
 #include "list.h"
 
-#define MLEN	256
+#define MLEN		1024
+#define mbuf_head	list_head
 
 struct mbuf {
 	struct list_head list;
@@ -11,14 +12,11 @@ struct mbuf {
 	unsigned char databuf[MLEN];
 };
 
-struct mbuf_head {
-	struct list_head head;
-};
-
 void mbuf_init(struct mbuf_head *head);
 void mbuf_add_after(struct mbuf_head *head, const unsigned char *data, int len);
 void mbuf_add_ahead(struct mbuf_head *head, const unsigned char *data, int len);
-int mbuf_write(const struct mbuf_head *head, int fd);
+int mbuf_get_len(const struct mbuf_head *head);
+int mbuf_write(int fd, const struct mbuf_head *head);
 void mbuf_free(struct mbuf_head *head);
 
 #endif /* _MBUF_H_ */
